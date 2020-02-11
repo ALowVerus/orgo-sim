@@ -18,5 +18,6 @@ for any special, direct, indirect, incidental, or consequential damages of any k
 whatsoever (including, without limitation, attorney's fees) in any way due to, resulting 
 from, or arising in connection with the use of or inability to use the product or the content.
 
-###This product is still in Beta, and while its content will improve over time, it is still in no way, shape, or form a replacement for professional Chemistry tutoring and supervision. 
-###Consult with a professional before performing any chemistry experiments, and follow that professional's advice over that of this product.
+-> This product is still in Beta, and while its content will improve over time, it is still in no way, shape, or form a replacement for professional Chemistry tutoring and supervision. 
+
+-> Consult with a professional before performing any chemistry experiments, and follow that professional's advice over that of this product.
