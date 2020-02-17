@@ -4,6 +4,20 @@ from tests.test import *
 
 Test.describe("Simple chains / impact of the number of C")
 
+Test.it("hexane")
+
+draw = """
+
+CH3CH2CH2CH2CH2CH3
+
+"""
+molec = "hexane"
+expected = {'C': 6, 'H': 14}
+
+print(molec + ":\n" + draw.strip("\n") + "\n" + "{'C': 6, 'H': 14}")
+test.assert_equals(ParseHer(molec).parse(), {'C': 6, 'H': 14}, "Wrong result for methane")
+print("<COMPLETEDIN::>")
+
 Test.it("methane")
 
 draw = """

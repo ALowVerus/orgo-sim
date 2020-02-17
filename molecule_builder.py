@@ -1,21 +1,5 @@
 import ctypes
-from iupac_name_parser import ROOTS, RADICALS
-
-PERIODIC_TABLE = {
-    "H": {"valence": 1, "weight": 1},
-    "B": {"valence": 3, "weight": 10.8},
-    "C": {"valence": 4, "weight": 12},
-    "N": {"valence": 3, "weight": 14},
-    "As": {"valence": 3, "weight": 74.9},
-    "O": {"valence": 2, "weight": 16},
-    "F": {"valence": 1, "weight": 19},
-    "Mg": {"valence": 2, "weight": 24.3},
-    "P": {"valence": 3, "weight": 31},
-    "S": {"valence": 2, "weight": 32.1},
-    "Cl": {"valence": 1, "weight": 35.5},
-    "Br": {"valence": 1, "weight": 80},
-    "I": {"valence": 1, "weight": 126.9}
-}
+from config import ROOTS, RADICALS, PERIODIC_TABLE
 
 
 def obj(n):
@@ -202,6 +186,7 @@ class Molecule:
                 formula_parts[atom.element] = 0
             formula_parts[atom.element] += 1
         self._formula = stringify_atoms_dict(formula_parts)
+        self.formula_dict = formula_parts
         self._molecular_weight = sum(formula_parts[elt] * PERIODIC_TABLE[elt]["weight"] for elt in formula_parts)
         self.closed = True
         return self

@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="da9798d5-61dd-471e-b3d6-789a6a0b6ad6" name="Default Changelist" comment="" />
+    <list default="true" id="da9798d5-61dd-471e-b3d6-789a6a0b6ad6" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/iupac_name_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/iupac_name_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/iupac_to_adjacency_parser.py" beforeDir="false" afterPath="$PROJECT_DIR$/iupac_to_adjacency_parser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/molecule_builder.py" beforeDir="false" afterPath="$PROJECT_DIR$/molecule_builder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/iupac_name_parser_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/iupac_name_parser_tests.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -14,7 +22,11 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1VB4Cd2VZVkxmNtBXHrPFu8sgUL" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -22,6 +34,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="restartRequiresConfirmation" value="false" />
   </component>
@@ -176,31 +189,39 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
-    <state width="1530" height="183" key="GridCell.Tab.0.bottom" timestamp="1577656357357">
-      <screen x="70" y="27" width="1530" height="873" />
+    <state x="728" y="302" width="524" height="509" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1581861836308">
+      <screen x="70" y="27" width="1850" height="1053" />
+    </state>
+    <state x="728" y="302" width="524" height="509" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1581861836308" />
+    <state width="847" height="916" key="GridCell.Tab.0.bottom" timestamp="1581898047472">
+      <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state width="1530" height="183" key="GridCell.Tab.0.bottom/70.27.1530.873@70.27.1530.873" timestamp="1577656357357" />
-    <state width="1850" height="306" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1577634729063" />
-    <state width="1530" height="183" key="GridCell.Tab.0.center" timestamp="1577656357356">
-      <screen x="70" y="27" width="1530" height="873" />
+    <state width="847" height="916" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1581898047472" />
+    <state width="847" height="916" key="GridCell.Tab.0.center" timestamp="1581898047472">
+      <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state width="1530" height="183" key="GridCell.Tab.0.center/70.27.1530.873@70.27.1530.873" timestamp="1577656357356" />
-    <state width="1850" height="306" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1577634729062" />
-    <state width="1530" height="183" key="GridCell.Tab.0.left" timestamp="1577656357355">
-      <screen x="70" y="27" width="1530" height="873" />
+    <state width="847" height="916" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1581898047472" />
+    <state width="847" height="916" key="GridCell.Tab.0.left" timestamp="1581898047471">
+      <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state width="1530" height="183" key="GridCell.Tab.0.left/70.27.1530.873@70.27.1530.873" timestamp="1577656357355" />
-    <state width="1850" height="306" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1577634729062" />
-    <state width="1530" height="183" key="GridCell.Tab.0.right" timestamp="1577656357356">
-      <screen x="70" y="27" width="1530" height="873" />
+    <state width="847" height="916" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1581898047471" />
+    <state width="847" height="916" key="GridCell.Tab.0.right" timestamp="1581898047472">
+      <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state width="1530" height="183" key="GridCell.Tab.0.right/70.27.1530.873@70.27.1530.873" timestamp="1577656357356" />
-    <state width="1850" height="306" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1577634729062" />
-    <state x="551" y="320" key="com.intellij.ide.util.TipDialog" timestamp="1577646742348">
-      <screen x="70" y="27" width="1530" height="873" />
+    <state width="847" height="916" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1581898047472" />
+    <state x="651" y="381" key="com.intellij.ide.util.TipDialog" timestamp="1581948663727">
+      <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="551" y="320" key="com.intellij.ide.util.TipDialog/70.27.1530.873@70.27.1530.873" timestamp="1577646742348" />
-    <state x="651" y="381" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1577541311804" />
+    <state x="651" y="381" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1581948663727" />
+    <state x="648" y="171" width="683" height="771" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1577670857897">
+      <screen x="70" y="27" width="1850" height="1053" />
+    </state>
+    <state x="648" y="171" width="683" height="771" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/70.27.1850.1053@70.27.1850.1053" timestamp="1577670857897" />
     <state x="995" y="366" key="search.everywhere.popup" timestamp="1577555239237">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>

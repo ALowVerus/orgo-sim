@@ -1,54 +1,6 @@
-
-# FOR REFERENCE
-RADICALS = ["meth", "eth", "prop", "but", "pent", "hex", "hept", "oct", "non", "dec", "undec", "dodec",
-            "tridec", "tetradec", "pentadec", "hexadec", "heptadec", "octadec", "nonadec"]
-MULTIPLIERS = ["", "di", "tri", "tetra", "penta", "hexa", "hepta", "octa", "nona", "deca", "undeca", "dodeca",
-               "trideca", "tetradeca", "pentadeca", "hexadeca", "heptadeca", "octadeca", "nonadeca"]
-ROOTS = [
-    "an", "en", "yn"
-]
-REDUNDANT_SUFFIXES = {
-    "ol": "hydroxy",
-    "one": "oxo",
-    "amide": "amido",
-    "amine": "amino",
-    "imine": "imino",
-    "benzene": "phenyl",
-    "thiol": "mercapto",
-    "phosphine": "phosphino",
-    "arsine": "arsino",
-    "carboxylicacid": "carboxy"
-}
-SUFFIXES = {
-    "al": {"O": 1, "H": -2},
-    "oicacid": {"O": 2, "H": -2},
-    "ether": {"O": 1},
-}
-PREFIXES = {
-    "cyclo": {"H": -2},
-    "hydroxy": {"O": 1},
-    "oxo": {"O": 1, "H": -2},
-    "carboxy": {"O": 2, "C": 1},
-    "formyl": {"C": 1, "O": 1},
-    "amido": {"N": 1, "O": 1, "H": -1},
-    "amino": {"N": 1, "H": 1},
-    "imino": {"N": 1, "H": -1},
-    "phenyl": {"C": 6, "H": 4},
-    "mercapto": {"S": 1},
-    "phosphino": {"P": 1, "H": 1},
-    "arsino": {"As": 1, "H": 1},
-    "fluoro": {"F": 1, "H": -1},
-    "chloro": {"Cl": 1, "H": -1},
-    "bromo": {"Br": 1, "H": -1},
-    "iodo": {"I": 1, "H": -1}
-}
-MEDIXES = {
-    "oxy": {"O": 1},
-    "yl": {},
-    "oyl": {"O": 1, "H": -2},
-    "carbonyl": {"C": 1, "O": 1},
-    "oate": {"O": 2, "H": -2},
-}
+import re
+from molecule_builder import *
+from config import *
 
 
 # Tokenize an organic molecule's name so its parts can be easily distinguished.
@@ -68,6 +20,7 @@ def tokenize(name):
             name = root[pointer + 2:len(root) - 1] + "-di" + sub + "oate" + root[:pointer + 1] + "e"
     # Grab the locations of the substituents
     formula = name.replace("-", "").replace(" ", "")
+
     # Generate name parts
     parts = []
     base = 0
@@ -107,6 +60,40 @@ def tokenize(name):
             # Append to list of parts
             parts.append(formula[base:pointer])
         base = pointer
+
+    # # Regex out some valid parts
+    # options = set(RADICALS) | set(MULTIPLIERS[1:]) | set(ROOTS) | \
+    #           set(REDUNDANT_SUFFIXES.keys()) | set(SUFFIXES.keys()) | \
+    #           set(PREFIXES.keys()) | set(MEDIXES.keys()) | {"e"}
+    # print("Options:", options)
+    # number_reg = "(?:[0-9]+(?:,[0-9]+)*)"
+    # char_reg = r"[\[\]-]"
+    # reg = r"\A(({}|{}|{})+)\Z".format("|".join(options), number_reg, char_reg)
+    # # Regex out a valid set of parts
+    # from regex import regex
+    # regged_parts = []
+    # i = 0
+    # reg = r"\A(({}|{}|{})(?1)*)\Z".format("|".join(options), number_reg, char_reg)
+    # while i < len(formula):
+    #     next_res = regex.match(reg, formula[i:]).group(2)
+    #     regged_parts.append(next_res)
+    #     i += len(next_res)
+    # # Kill useless tokens and intify substituent numberings
+    # regged_parts = [tuple([int(d) for d in part.split(',')]) if part[0].isdigit() else part
+    #                 for part in regged_parts]
+    # # Fix tridec
+    #
+    #
+    # # if not (
+    # #         i > 0
+    # #         and regged_parts[i - 1][0].isdigit()
+    # #         and MULTIPLIERS[len(regged_parts[i - 1].split(",")) - 1] == part
+    # # )
+    #
+    # print("PARTS:", parts)
+    # print("NEWS:", regged_parts)
+    # print("WORKS:", parts == regged_parts)
+
     # Replace all remaining multipliers with 1s
     if parts[-1] in {"al", "oicacid"} and parts[-2] == "di":
         k = -1
@@ -219,6 +206,8 @@ def tokenize(name):
     # Replace the SUFFIX with a PREFIX if possible to reduce reconstruction overhead.
     if parts[-1] in REDUNDANT_SUFFIXES:
         parts[-1] = REDUNDANT_SUFFIXES[parts[-1]]
+    # Print final parts:
+    print("Final Parts:", parts)
     # Return the parsed parts
     return parts
 
@@ -231,6 +220,55 @@ def recursively_print(node, indent=0):
         recursively_print(substituent[1], indent + 1)
 
 
+# A class for the nodes of the ast
+class ASTNode:
+    def __init__(self, title="LOREM_IPSUM"):
+        self.title = title
+        self.substituents = []
+
+    # Multiply substituent atom counts by the number of times the substituent appears.
+    @staticmethod
+    def atomic_multiplier(mult, atoms):
+        return {atom: atoms[atom] * mult for atom in atoms}
+
+    @staticmethod
+    # Sum up the various atom counts of a substituent's substituents.
+    def atomic_summer(atoms_list):
+        total_dict = {}
+        for atoms in atoms_list:
+            for atom in atoms:
+                if atom not in total_dict:
+                    total_dict[atom] = 0
+                total_dict[atom] += atoms[atom]
+        return total_dict
+
+    # Recursively descend through the AST to find the total atom count.
+    def recursively_atomize(self, indent=0):
+        multed_subs = [ASTNode.atomic_multiplier(len(substituent[0]), substituent[1].recursively_atomize(indent + 1))
+                       for substituent in self.substituents]
+        if self.title in RADICALS:
+            carbon_count = RADICALS.index(self.title) + 1
+            this_node_value = {"C": carbon_count, "H": carbon_count * 2}
+        elif self.title in SUFFIXES:
+            this_node_value = SUFFIXES[self.title]
+        elif self.title in PREFIXES:
+            this_node_value = PREFIXES[self.title]
+        elif self.title in MEDIXES:
+            this_node_value = MEDIXES[self.title]
+        elif self.title in ROOTS:
+            desaturation_count = ROOTS.index(self.title)
+            this_node_value = {"H": -2 * desaturation_count}
+        else:
+            this_node_value = {}
+        total_atoms = ASTNode.atomic_summer(multed_subs + [this_node_value])
+        return total_atoms
+
+    # Convert the Abstract Syntax Tree into an atomic formula by descending through the AST from its root.
+    def atomize(self):
+        # Call the recursive function and subtract two Hydrogens from its result to match the root.
+        return ASTNode.atomic_summer([self.recursively_atomize()] + [{"H": 2}])
+
+
 # Convert the tokenized name into an Abstract Syntax Tree.
 def astify(parts):
     # Get parentheses pairs
@@ -241,11 +279,6 @@ def astify(parts):
             p_q.append(p_i)
         elif parts[p_i] == "]":
             p_d[p_q.pop()] = p_i
-
-    class ASTNode:
-        def __init__(self, title="LOREM_IPSUM"):
-            self.title = title
-            self.substituents = []
 
     root = ASTNode()
     q = [root]
@@ -304,382 +337,6 @@ def astify(parts):
     return root
 
 
-# Convert the Abstract Syntax Tree into an atomic formula by descending through the AST from its root.
-def atomize(ast):
-    # Multiply substituent atom counts by the number of times the substituent appears.
-    def atomic_multiplier(mult, atoms):
-        return {atom: atoms[atom] * mult for atom in atoms}
-
-    # Sum up the various atom counts of a substituent's substituents.
-    def atomic_summer(atoms_list):
-        total_dict = {}
-        for atoms in atoms_list:
-            for atom in atoms:
-                if atom not in total_dict:
-                    total_dict[atom] = 0
-                total_dict[atom] += atoms[atom]
-        return total_dict
-
-    # Recursively descend through the AST to find the total atom count.
-    def recursively_atomize(node, indent=0):
-        multed_subs = [atomic_multiplier(len(substituent[0]), recursively_atomize(substituent[1], indent + 1))
-                       for substituent in node.substituents]
-        if node.title in RADICALS:
-            carbon_count = RADICALS.index(node.title) + 1
-            this_node_value = {"C": carbon_count, "H": carbon_count * 2}
-        elif node.title in SUFFIXES:
-            this_node_value = SUFFIXES[node.title]
-        elif node.title in PREFIXES:
-            this_node_value = PREFIXES[node.title]
-        elif node.title in MEDIXES:
-            this_node_value = MEDIXES[node.title]
-        elif node.title in ROOTS:
-            desaturation_count = ROOTS.index(node.title)
-            this_node_value = {"H": -2 * desaturation_count}
-        else:
-            this_node_value = {}
-        total_atoms = atomic_summer(multed_subs + [this_node_value])
-        return total_atoms
-
-    # Call the recursive function and subtract two Hydrogens from its result to match the root.
-    return atomic_summer([recursively_atomize(ast)] + [{"H": 2}])
-
-
-import ctypes
-from iupac_name_parser import ROOTS, RADICALS
-
-PERIODIC_TABLE = {
-    "H": {"valence": 1, "weight": 1},
-    "B": {"valence": 3, "weight": 10.8},
-    "C": {"valence": 4, "weight": 12},
-    "N": {"valence": 3, "weight": 14},
-    "As": {"valence": 3, "weight": 74.9},
-    "O": {"valence": 2, "weight": 16},
-    "F": {"valence": 1, "weight": 19},
-    "Mg": {"valence": 2, "weight": 24.3},
-    "P": {"valence": 3, "weight": 31},
-    "S": {"valence": 2, "weight": 32.1},
-    "Cl": {"valence": 1, "weight": 35.5},
-    "Br": {"valence": 1, "weight": 80},
-    "I": {"valence": 1, "weight": 126.9}
-}
-
-
-def obj(n):
-    return ctypes.cast(n, ctypes.py_object).value
-
-
-def order_elements(elements):
-    elts_order = []
-    for elt in ["C", "H", "O"]:
-        if elt in elements:
-            elts_order.append(elt)
-            elements.remove(elt)
-    elts_order.extend(sorted(elements))
-    return elts_order
-
-
-def stringify_atoms_dict(formula_parts):
-    elts_order = order_elements(set(formula_parts.keys()))
-    formula = "".join(
-        [elt + str(formula_parts[elt]) if formula_parts[elt] != 1 else elt for elt in elts_order])
-    return formula
-
-
-class InvalidBond(Exception):
-    pass
-
-
-class LockedMolecule(Exception):
-    pass
-
-
-class UnlockedMolecule(Exception):
-    pass
-
-
-class EmptyMolecule(Exception):
-    pass
-
-
-class Atom:
-
-    def __init__(self, elt, idn):
-        self.element = elt
-        self.id = idn
-        self.connections = {}
-
-    def __hash__(self):
-        return self.id
-
-    def __eq__(self, other):
-        return self.id == other.id
-
-    def __str__(self):
-        elts_set = set([obj(n).element for n in self.connections]).difference({"H"})
-        elts_order = order_elements(elts_set)
-        conns_formatted = []
-        for elt in elts_order:
-            matches = sorted([n for n in self.connections if obj(n).element == elt], key=lambda x: obj(x).id)
-            for match in matches:
-                for i in range(self.connections[match]):
-                    conns_formatted.append(obj(match).element + str(obj(match).id))
-        conns_formatted.extend(["H" for n in self.connections if obj(n).element == "H"])
-        conns = ",".join(conns_formatted)
-        return "Atom({}.{}{}{})".format(self.element, self.id, ": " * (len(conns) > 0), conns)
-
-
-def connect(a1, a2):
-    if a1 == a2:
-        raise InvalidBond
-    for u, t in [(a1, a2), (a2, a1)]:
-        if sum([u.connections[n] for n in u.connections]) == PERIODIC_TABLE[u.element]["valence"]:
-            raise InvalidBond
-    for u, t in [(a1, a2), (a2, a1)]:
-        if id(t) not in u.connections:
-            u.connections[id(t)] = 0
-        u.connections[id(t)] += 1
-
-
-class Molecule:
-    def __init__(self, name=""):
-        print("Initiating!")
-        self.name = name
-        self.atoms = []
-        self.branches = []
-        self.closed = False
-        self._molecular_weight = 0
-        self._formula = {}
-
-    @property
-    def formula(self):
-        if not self.closed:
-            raise UnlockedMolecule
-        return self._formula
-
-    @property
-    def molecular_weight(self):
-        if not self.closed:
-            raise UnlockedMolecule
-        return self._molecular_weight
-
-    def create(self, element):
-        if self.closed:
-            raise LockedMolecule
-        self.atoms.append(Atom(element, len(self.atoms) + 1))
-
-    def brancher(self, *new_branches):
-        self.log("Brancher", new_branches)
-        if self.closed:
-            raise LockedMolecule
-        for new_branch in new_branches:
-            self.create("C")
-            self.branches.append([id(self.atoms[-1])])
-            for i in range(new_branch - 1):
-                self.create("C")
-                connect(self.atoms[-1], self.atoms[-2])
-                self.branches[-1].append(id(self.atoms[-1]))
-        return self
-
-    def bounder(self, *bounds):
-        self.log("Bounder", bounds)
-        if self.closed:
-            raise LockedMolecule
-        for bound in bounds:
-            c1, b1, c2, b2 = bound
-            connect(obj(self.branches[b1 - 1][c1 - 1]), obj(self.branches[b2 - 1][c2 - 1]))
-        return self
-
-    def mutate(self, *mutations):
-        self.log("Mutating", mutations)
-        if self.closed:
-            raise LockedMolecule
-        for mutation in mutations:
-            nc, nb, elt = mutation
-            target = obj(self.branches[nb - 1][nc - 1])
-            if PERIODIC_TABLE[elt]["valence"] < sum([target.connections[neighbor] for neighbor in target.connections]):
-                raise InvalidBond
-            target.element = elt
-        return self
-
-    def add(self, *additions):
-        self.log("Adding", additions)
-        if self.closed:
-            raise LockedMolecule
-        for addition in additions:
-            nc, nb, elt = addition
-            target = obj(self.branches[nb - 1][nc - 1])
-            if PERIODIC_TABLE[target.element]["valence"] <= sum(
-                    [target.connections[neighbor] for neighbor in target.connections]):
-                raise InvalidBond
-            self.create(elt)
-            connect(target, self.atoms[-1])
-        return self
-
-    def add_chaining(self, *args):
-        self.log("Adding chains", args)
-        if self.closed:
-            raise LockedMolecule
-        nc, nb, newbs = args[0], args[1], args[2:]
-        for newb in newbs[:-1]:
-            if PERIODIC_TABLE[newb]["valence"] == 1:
-                raise InvalidBond
-        root = obj(self.branches[nb - 1][nc - 1])
-        if PERIODIC_TABLE[root.element]["valence"] <= sum(
-                [root.connections[neighbor] for neighbor in root.connections]):
-            raise InvalidBond
-        for i, elt in enumerate(newbs):
-            self.create(elt)
-            connect(root, self.atoms[-1])
-            root = self.atoms[-1]
-        return self
-
-    def closer(self):
-        self.log("Closing")
-        if self.closed:
-            raise LockedMolecule
-        formula_parts = {}
-        for atom in self.atoms.copy():
-            for i in range(
-                    PERIODIC_TABLE[atom.element]["valence"] - sum([atom.connections[a] for a in atom.connections])):
-                self.create("H")
-                connect(atom, self.atoms[-1])
-        for atom in self.atoms:
-            if atom.element not in formula_parts:
-                formula_parts[atom.element] = 0
-            formula_parts[atom.element] += 1
-        self._formula = stringify_atoms_dict(formula_parts)
-        self.formula_dict = formula_parts
-        self._molecular_weight = sum(formula_parts[elt] * PERIODIC_TABLE[elt]["weight"] for elt in formula_parts)
-        self.closed = True
-        return self
-
-    def unlock(self):
-        self.log("Opening")
-        if not self.closed:
-            raise UnlockedMolecule
-        # Sift out empty branches
-        i = len(self.branches) - 1
-        while i >= 0:
-            j = len(self.branches[i]) - 1
-            while j >= 0:
-                if obj(self.branches[i][j]).element == "H":
-                    self.branches[i].pop(j)
-                j -= 1
-            if len(self.branches[i]) == 0:
-                self.branches.pop(i)
-            i -= 1
-        if len(self.branches) == 0:
-            raise EmptyMolecule
-        # Sift out Hydrogens
-        i = len(self.atoms) - 1
-        while i >= 0:
-            if self.atoms[i].element == "H":
-                for n in self.atoms[i].connections:
-                    obj(n).connections = {t: obj(n).connections[t] for t in obj(n).connections if obj(t).element != "H"}
-                self.atoms.pop(i)
-            i -= 1
-        # Renumber
-        for i, atom in enumerate(self.atoms):
-            atom.id = i + 1
-        # Set open
-        self.closed = False
-        return self
-
-    def recursively_populate(self, node, root_branch_id=0, root_carbon_number=0):
-        # Add the current node's title to the molecule
-        this_branch_id = len(self.branches) + 1
-        if node.title in RADICALS:
-            self.brancher(RADICALS.index(node.title) + 1)
-        elif node.title == "mercapto":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "S"))
-        elif node.title in {"oxo", "al", "oyl", "oxy", "hydroxy", "ether"}:
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "O"))
-        elif node.title == "fluoro":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "F"))
-        elif node.title == "chloro":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "Cl"))
-        elif node.title == "bromo":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "Br"))
-        elif node.title == "iodo":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "I"))
-        elif node.title == "carboxy":
-            self.brancher(2)
-            self.mutate((2, this_branch_id, "O"))
-            self.bounder((1, this_branch_id, 2, this_branch_id))
-            self.add((1, this_branch_id, "O"))
-        elif node.title == "formyl":
-            self.brancher(2)
-            self.mutate((2, this_branch_id, "O"))
-            self.bounder((1, this_branch_id, 2, this_branch_id))
-        elif node.title == "amido":
-            self.brancher(1)
-            self.mutate((1, len(self.branches), "N"))
-            self.brancher(1)
-            self.mutate((1, len(self.branches), "O"))
-            self.bounder((root_carbon_number, root_branch_id, 1, this_branch_id + 1))
-            self.bounder((root_carbon_number, root_branch_id, 1, this_branch_id + 1))
-        elif node.title == "amino" or node.title == "imino":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "N"))
-        elif node.title == "phenyl":
-            self.brancher(6)
-            self.bounder((1, this_branch_id, 6, this_branch_id))
-            self.bounder((1, this_branch_id, 2, this_branch_id))
-            self.bounder((3, this_branch_id, 4, this_branch_id))
-            self.bounder((5, this_branch_id, 6, this_branch_id))
-        elif node.title == "phosphino":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "P"))
-        elif node.title == "arsino":
-            self.brancher(1)
-            self.mutate((1, this_branch_id, "As"))
-        elif node.title == "carbonyl":
-            self.brancher(2)
-            self.mutate((2, this_branch_id, "O"))
-            self.bounder((1, this_branch_id, 2, this_branch_id))
-        elif node.title == "oate" or node.title == "oicacid":
-            self.brancher(1)
-            self.mutate((1, len(self.branches), "O"))
-            self.brancher(1)
-            self.mutate((1, len(self.branches), "O"))
-            self.bounder((root_carbon_number, root_branch_id, 1, this_branch_id + 1))
-            self.bounder((root_carbon_number, root_branch_id, 1, this_branch_id + 1))
-        # Link the new branch to the root at the correct location
-        if root_branch_id and root_carbon_number:
-            self.bounder((root_carbon_number, root_branch_id, 1, this_branch_id))
-            if node.title in {"oxo", "al", "imino", "oyl"}:
-                self.bounder((root_carbon_number, root_branch_id, 1, this_branch_id))
-        # Loop over substituents
-        for locations, substituent in node.substituents:
-            for location in locations:
-                if substituent.title == "cyclo":
-                    self.bounder((1, this_branch_id, len(self.branches[this_branch_id - 1]), this_branch_id))
-                elif substituent.title in ROOTS:
-                    for i in range(ROOTS.index(substituent.title)):
-                        self.bounder((location, this_branch_id, location + 1, this_branch_id))
-                else:
-                    self.recursively_populate(substituent, this_branch_id, location)
-        return self
-
-    def log(self, *args):
-        #         print("After last command:", [str(atom) for atom in self.atoms])
-        #         name, content = args[0], args[1:]
-        #         print(name, content)
-        #         if name == "Adding":
-        #             for trio in content[0]:
-        #                 nc, nb, elt = trio
-        #                 target = obj(self.branches[nb-1][nc-1])
-        #                 print(target.element, target.id)
-        pass
-
-
 # Declare a class that applies the tokenization & AST logic.
 class ParseHer:
 
@@ -694,3 +351,8 @@ class ParseHer:
     def parse(self):
         # Parse the name given as argument in the constructor and output the dict representing the raw formula
         return self.atoms
+
+
+tokenize("hexahexahexhexhexahexandiol")
+print()
+print()
